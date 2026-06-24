@@ -145,7 +145,7 @@ function App() {
               onChange={(event) => setContent(event.target.value)}
               placeholder={TEXT.titlePlaceholder}
               aria-label={TEXT.titleLabel}
-              rows={8}
+              rows={4}
               disabled={isSaving}
             />
           </label>
