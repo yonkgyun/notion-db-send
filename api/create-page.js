@@ -27,6 +27,84 @@ function getKoreaDate() {
   }).format(new Date());
 }
 
+function textToParagraphBlocks(text) {
+  return chunkText(text, 1900).map((chunk) => ({
+    object: "block",
+    type: "paragraph",
+    paragraph: {
+      rich_text: [
+        {
+          type: "text",
+          text: {
+            content: chunk
+          }
+        }
+      ]
+    }
+  }));
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [meta, encoded] = dataUrl.split(",");
+  const contentType = meta.match(/data:(.*?);base64/)?.[1] || "application/octet-stream";
+  const binary = Buffer.from(encoded || "", "base64");
+  return new Blob([binary], { type: contentType });
+}
+
+async function uploadImageToNotion(apiKey, image) {
+  const contentType = image.type || "image/jpeg";
+  const filename = image.name || `photo-${Date.now()}.jpg`;
+
+  const createResponse = await fetch("https://api.notion.com/v1/file_uploads", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION
+    },
+    body: JSON.stringify({
+      filename,
+      content_type: contentType
+    })
+  });
+
+  const createPayload = await createResponse.json().catch(() => ({}));
+
+  if (!createResponse.ok) {
+    throw new Error(createPayload.message || "\uC0AC\uC9C4 \uCCA8\uBD80\uB97C \uC900\uBE44\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.");
+  }
+
+  const blob = dataUrlToBlob(image.dataUrl || "");
+  const formData = new FormData();
+  formData.append("file", blob, filename);
+
+  const sendResponse = await fetch(`https://api.notion.com/v1/file_uploads/${createPayload.id}/send`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Notion-Version": NOTION_VERSION
+    },
+    body: formData
+  });
+
+  const sendPayload = await sendResponse.json().catch(() => ({}));
+
+  if (!sendResponse.ok) {
+    throw new Error(sendPayload.message || "\uC0AC\uC9C4\uC744 Notion\uC5D0 \uC62C\uB9AC\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.");
+  }
+
+  return {
+    object: "block",
+    type: "image",
+    image: {
+      type: "file_upload",
+      file_upload: {
+        id: createPayload.id
+      }
+    }
+  };
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -44,6 +122,8 @@ export default async function handler(request, response) {
     const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
     const content = String(body.content || "").trim();
     const memo = String(body.memo || "").trim();
+    const bodyContent = String(body.bodyContent || "").trim();
+    const images = Array.isArray(body.images) ? body.images : [];
     const type = String(body.type || "").trim();
     const typePropertyName = String(body.typePropertyName || TYPE_PROPERTY).trim();
 
@@ -84,6 +164,18 @@ export default async function handler(request, response) {
       };
     }
 
+    const imageBlocks = [];
+    for (const image of images.slice(0, 5)) {
+      if (image?.dataUrl) {
+        imageBlocks.push(await uploadImageToNotion(apiKey, image));
+      }
+    }
+
+    const children = [
+      ...(bodyContent ? textToParagraphBlocks(bodyContent) : []),
+      ...imageBlocks
+    ];
+
     const notionResponse = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
       headers: {
@@ -98,7 +190,8 @@ export default async function handler(request, response) {
         icon: {
           emoji: "\u25AA\uFE0F"
         },
-        properties
+        properties,
+        children
       })
     });
 
