@@ -153,9 +153,9 @@ textarea {
 }
 
 .body-textarea {
-  height: 380px;
-  min-height: 380px;
-  max-height: 380px;
+  height: 266px;
+  min-height: 266px;
+  max-height: 266px;
   overflow-y: auto;
 }
 
@@ -338,7 +338,7 @@ textarea:disabled {
   }
 
   .body-textarea {
-    height: 380px;
-    min-height: 380px;
+    height: 266px;
+    min-height: 266px;
   }
 }
