@@ -23,6 +23,7 @@ const TEXT = {
 function App() {
   const [content, setContent] = useState("");
   const [type, setType] = useState("");
+  const [typePropertyName, setTypePropertyName] = useState("유형");
   const [typeOptions, setTypeOptions] = useState([]);
   const [isLoadingTypes, setIsLoadingTypes] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,6 +54,7 @@ function App() {
       }
 
       setTypeOptions(payload.options || []);
+      setTypePropertyName(payload.propertyName || "유형");
     } catch (error) {
       showToast(error.message || TEXT.typeLoadFailed, "error");
     } finally {
@@ -83,7 +85,7 @@ function App() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ content: trimmed, type })
+        body: JSON.stringify({ content: trimmed, type, typePropertyName })
       });
 
       const payload = await response.json().catch(() => ({}));
