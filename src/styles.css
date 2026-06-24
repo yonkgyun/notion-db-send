@@ -98,7 +98,8 @@ h1 {
 
 select {
   width: 100%;
-  min-height: 66px;
+  height: 74px;
+  min-height: 74px;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 52px 0 18px;
@@ -137,13 +138,17 @@ textarea {
 }
 
 .title-textarea {
-  min-height: 150px;
-  max-height: 240px;
+  height: 190px;
+  min-height: 190px;
+  max-height: 190px;
+  overflow-y: auto;
 }
 
 .memo-textarea {
-  min-height: 150px;
-  max-height: 240px;
+  height: 190px;
+  min-height: 190px;
+  max-height: 190px;
+  overflow-y: auto;
 }
 
 textarea::placeholder {
@@ -249,10 +254,12 @@ textarea:disabled {
   }
 
   .title-textarea {
-    min-height: 150px;
+    height: 190px;
+    min-height: 190px;
   }
 
   .memo-textarea {
-    min-height: 150px;
+    height: 190px;
+    min-height: 190px;
   }
 }
