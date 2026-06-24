@@ -39,9 +39,33 @@ export default async function handler(request, response) {
   try {
     const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
     const content = String(body.content || "").trim();
+    const type = String(body.type || "").trim();
 
     if (!content) {
       return sendJson(response, 400, { message: "저장할 내용을 입력해주세요." });
+    }
+
+    const properties = {
+      "이름": {
+        title: chunkText(content).map((chunk) => ({
+          text: {
+            content: chunk
+          }
+        }))
+      },
+      "날짜": {
+        date: {
+          start: getKoreaDate()
+        }
+      }
+    };
+
+    if (type) {
+      properties["유형"] = {
+        select: {
+          name: type
+        }
+      };
     }
 
     const notionResponse = await fetch("https://api.notion.com/v1/pages", {
@@ -55,34 +79,7 @@ export default async function handler(request, response) {
         parent: {
           database_id: databaseId
         },
-        properties: {
-          "제목": {
-            title: chunkText(content).map((chunk) => ({
-                text: {
-                  content: chunk
-                }
-              }))
-          },
-          "등록일": {
-            date: {
-              start: getKoreaDate()
-            }
-          },
-          "상태": {
-            status: {
-              name: "대기"
-            }
-          },
-          "작성자": {
-            rich_text: [
-              {
-                text: {
-                  content: "김용균"
-                }
-              }
-            ]
-          }
-        }
+        properties
       })
     });
 
