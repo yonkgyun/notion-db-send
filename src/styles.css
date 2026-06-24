@@ -41,7 +41,8 @@ body {
 
 button,
 textarea,
-select {
+select,
+input {
   font: inherit;
 }
 
@@ -138,16 +139,23 @@ textarea {
 }
 
 .title-textarea {
-  height: 190px;
-  min-height: 190px;
-  max-height: 190px;
+  height: 96px;
+  min-height: 96px;
+  max-height: 96px;
   overflow-y: auto;
 }
 
 .memo-textarea {
-  height: 190px;
-  min-height: 190px;
-  max-height: 190px;
+  height: 96px;
+  min-height: 96px;
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+.body-textarea {
+  height: 380px;
+  min-height: 380px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
@@ -193,6 +201,72 @@ textarea:disabled {
   background: var(--button-disabled);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.photo-input {
+  display: none;
+}
+
+.photo-button {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 740;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  touch-action: manipulation;
+}
+
+.photo-button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.photo-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.photo-thumb button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34, 34, 34, 0.8);
+  color: #ffffff;
+  padding: 0;
 }
 
 .toast {
@@ -254,12 +328,17 @@ textarea:disabled {
   }
 
   .title-textarea {
-    height: 190px;
-    min-height: 190px;
+    height: 96px;
+    min-height: 96px;
   }
 
   .memo-textarea {
-    height: 190px;
-    min-height: 190px;
+    height: 96px;
+    min-height: 96px;
+  }
+
+  .body-textarea {
+    height: 380px;
+    min-height: 380px;
   }
 }
