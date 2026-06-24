@@ -1,4 +1,7 @@
 const NOTION_VERSION = "2022-06-28";
+const NAME_PROPERTY = process.env.NOTION_NAME_PROPERTY || "\uC774\uB984";
+const DATE_PROPERTY = process.env.NOTION_DATE_PROPERTY || "\uB0A0\uC9DC";
+const TYPE_PROPERTY = process.env.NOTION_TYPE_PROPERTY || "\uC720\uD615";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -26,34 +29,35 @@ function getKoreaDate() {
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
-    return sendJson(response, 405, { message: "POST 요청만 사용할 수 있습니다." });
+    return sendJson(response, 405, { message: "POST request only." });
   }
 
   const apiKey = process.env.NOTION_API_KEY;
   const databaseId = process.env.NOTION_DATABASE_ID;
 
   if (!apiKey || !databaseId) {
-    return sendJson(response, 500, { message: "Notion 환경변수가 설정되지 않았습니다." });
+    return sendJson(response, 500, { message: "\uB178\uC158 \uD658\uACBD\uBCC0\uC218\uAC00 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4." });
   }
 
   try {
     const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
     const content = String(body.content || "").trim();
     const type = String(body.type || "").trim();
+    const typePropertyName = String(body.typePropertyName || TYPE_PROPERTY).trim();
 
     if (!content) {
-      return sendJson(response, 400, { message: "저장할 내용을 입력해주세요." });
+      return sendJson(response, 400, { message: "\uC800\uC7A5\uD560 \uB0B4\uC6A9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694." });
     }
 
     const properties = {
-      "이름": {
+      [NAME_PROPERTY]: {
         title: chunkText(content).map((chunk) => ({
           text: {
             content: chunk
           }
         }))
       },
-      "날짜": {
+      [DATE_PROPERTY]: {
         date: {
           start: getKoreaDate()
         }
@@ -61,7 +65,7 @@ export default async function handler(request, response) {
     };
 
     if (type) {
-      properties["유형"] = {
+      properties[typePropertyName] = {
         select: {
           name: type
         }
@@ -87,12 +91,12 @@ export default async function handler(request, response) {
 
     if (!notionResponse.ok) {
       return sendJson(response, notionResponse.status, {
-        message: notionPayload.message || "Notion 저장에 실패했습니다."
+        message: notionPayload.message || "\uB178\uC158 \uC800\uC7A5\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4."
       });
     }
 
     return sendJson(response, 200, { ok: true, pageId: notionPayload.id });
   } catch (error) {
-    return sendJson(response, 500, { message: error.message || "저장 중 오류가 발생했습니다." });
+    return sendJson(response, 500, { message: error.message || "\uC800\uC7A5 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4." });
   }
 }
