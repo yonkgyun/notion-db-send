@@ -44,6 +44,24 @@ function textToParagraphBlocks(text) {
   }));
 }
 
+function createImageToggleBlock(imageBlocks) {
+  return {
+    object: "block",
+    type: "toggle",
+    toggle: {
+      rich_text: [
+        {
+          type: "text",
+          text: {
+            content: "\uC774\uBBF8\uC9C0"
+          }
+        }
+      ],
+      children: imageBlocks
+    }
+  };
+}
+
 function dataUrlToBlob(dataUrl) {
   const [meta, encoded] = dataUrl.split(",");
   const contentType = meta.match(/data:(.*?);base64/)?.[1] || "application/octet-stream";
@@ -172,8 +190,8 @@ export default async function handler(request, response) {
     }
 
     const children = [
-      ...(bodyContent ? textToParagraphBlocks(bodyContent) : []),
-      ...imageBlocks
+      ...(imageBlocks.length ? [createImageToggleBlock(imageBlocks)] : []),
+      ...(bodyContent ? textToParagraphBlocks(bodyContent) : [])
     ];
 
     const notionResponse = await fetch("https://api.notion.com/v1/pages", {
