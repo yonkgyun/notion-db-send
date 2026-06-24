@@ -10,8 +10,10 @@ const TEXT = {
   typeEmpty: "\uC120\uD0DD",
   typeLoading: "\uC720\uD615 \uBD88\uB7EC\uC624\uB294 \uC911",
   typeNoOptions: "\uC720\uD615 \uC635\uC158 \uC5C6\uC74C",
-  contentPlaceholder: "\uB0B4\uC6A9\uC744 \uC785\uB825\uD558\uC138\uC694",
-  contentLabel: "\uB0B4\uC6A9",
+  titleLabel: "\uC81C\uBAA9",
+  titlePlaceholder: "\uB0B4\uC6A9\uC744 \uC785\uB825\uD558\uC138\uC694",
+  memoLabel: "\uBA54\uBAA8",
+  memoPlaceholder: "\uBA54\uBAA8\uB97C \uC785\uB825\uD558\uC138\uC694",
   saving: "\uC800\uC7A5 \uC911",
   save: "\uC800\uC7A5",
   saved: "Notion\uC5D0 \uC800\uC7A5\uD588\uC2B5\uB2C8\uB2E4.",
@@ -22,8 +24,9 @@ const TEXT = {
 
 function App() {
   const [content, setContent] = useState("");
+  const [memo, setMemo] = useState("");
   const [type, setType] = useState("");
-  const [typePropertyName, setTypePropertyName] = useState("유형");
+  const [typePropertyName, setTypePropertyName] = useState("\uC720\uD615");
   const [typeOptions, setTypeOptions] = useState([]);
   const [isLoadingTypes, setIsLoadingTypes] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -54,7 +57,7 @@ function App() {
       }
 
       setTypeOptions(payload.options || []);
-      setTypePropertyName(payload.propertyName || "유형");
+      setTypePropertyName(payload.propertyName || "\uC720\uD615");
     } catch (error) {
       showToast(error.message || TEXT.typeLoadFailed, "error");
     } finally {
@@ -85,7 +88,7 @@ function App() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ content: trimmed, type, typePropertyName })
+        body: JSON.stringify({ content: trimmed, memo, type, typePropertyName })
       });
 
       const payload = await response.json().catch(() => ({}));
@@ -95,6 +98,7 @@ function App() {
       }
 
       setContent("");
+      setMemo("");
       showToast(TEXT.saved, "success");
       requestAnimationFrame(() => textareaRef.current?.focus());
     } catch (error) {
@@ -114,7 +118,7 @@ function App() {
         </header>
 
         <form className="memo-form" onSubmit={handleSubmit}>
-          <label className="type-field">
+          <label className="form-field">
             <span>{TEXT.type}</span>
             <select
               value={type}
@@ -132,15 +136,32 @@ function App() {
             </select>
           </label>
 
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder={TEXT.contentPlaceholder}
-            aria-label={TEXT.contentLabel}
-            rows={8}
-            disabled={isSaving}
-          />
+          <label className="form-field">
+            <span>{TEXT.titleLabel}</span>
+            <textarea
+              className="title-textarea"
+              ref={textareaRef}
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder={TEXT.titlePlaceholder}
+              aria-label={TEXT.titleLabel}
+              rows={8}
+              disabled={isSaving}
+            />
+          </label>
+
+          <label className="form-field">
+            <span>{TEXT.memoLabel}</span>
+            <textarea
+              className="memo-textarea"
+              value={memo}
+              onChange={(event) => setMemo(event.target.value)}
+              placeholder={TEXT.memoPlaceholder}
+              aria-label={TEXT.memoLabel}
+              rows={4}
+              disabled={isSaving}
+            />
+          </label>
 
           <button className="save-button" type="submit" disabled={isSaving || !content.trim()}>
             <Send size={22} strokeWidth={2.3} aria-hidden="true" />
