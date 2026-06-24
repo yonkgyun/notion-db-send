@@ -2,6 +2,7 @@ const NOTION_VERSION = "2022-06-28";
 const NAME_PROPERTY = process.env.NOTION_NAME_PROPERTY || "\uC774\uB984";
 const DATE_PROPERTY = process.env.NOTION_DATE_PROPERTY || "\uB0A0\uC9DC";
 const TYPE_PROPERTY = process.env.NOTION_TYPE_PROPERTY || "\uC720\uD615";
+const MEMO_PROPERTY = process.env.NOTION_MEMO_PROPERTY || "\uBA54\uBAA8";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -42,11 +43,12 @@ export default async function handler(request, response) {
   try {
     const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
     const content = String(body.content || "").trim();
+    const memo = String(body.memo || "").trim();
     const type = String(body.type || "").trim();
     const typePropertyName = String(body.typePropertyName || TYPE_PROPERTY).trim();
 
     if (!content) {
-      return sendJson(response, 400, { message: "\uC800\uC7A5\uD560 \uB0B4\uC6A9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694." });
+      return sendJson(response, 400, { message: "\uC800\uC7A5\uD560 \uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694." });
     }
 
     const properties = {
@@ -72,6 +74,16 @@ export default async function handler(request, response) {
       };
     }
 
+    if (memo) {
+      properties[MEMO_PROPERTY] = {
+        rich_text: chunkText(memo).map((chunk) => ({
+          text: {
+            content: chunk
+          }
+        }))
+      };
+    }
+
     const notionResponse = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
       headers: {
@@ -82,6 +94,9 @@ export default async function handler(request, response) {
       body: JSON.stringify({
         parent: {
           database_id: databaseId
+        },
+        icon: {
+          emoji: "\u25AA\uFE0F"
         },
         properties
       })
