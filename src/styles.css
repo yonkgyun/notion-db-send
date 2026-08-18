@@ -18,7 +18,7 @@
   --danger: #c2410c;
   --success: #256f3f;
   --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  --field-gap: 18px;
+  --field-gap: 13px;
 }
 
 * {
@@ -59,7 +59,7 @@ input {
   width: min(100%, 520px);
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
   padding-top: 18px;
 }
 
@@ -97,10 +97,17 @@ h1 {
   font-weight: 680;
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(142px, 1fr);
+  gap: var(--field-gap);
+  align-items: end;
+}
+
 select {
   width: 100%;
-  height: 74px;
-  min-height: 74px;
+  height: 52px;
+  min-height: 52px;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 52px 0 18px;
@@ -124,12 +131,33 @@ select:focus {
     0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
+input[type="date"] {
+  width: 100%;
+  height: 52px;
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 17px;
+  outline: none;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+input[type="date"]:focus {
+  border-color: color-mix(in srgb, var(--button) 62%, var(--border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--button) 18%, transparent),
+    0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
 textarea {
   width: 100%;
   resize: none;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 18px;
+  padding: 13px 18px;
   background: var(--panel);
   color: var(--text);
   line-height: 1.55;
@@ -139,23 +167,23 @@ textarea {
 }
 
 .title-textarea {
-  height: 96px;
-  min-height: 96px;
-  max-height: 96px;
+  height: 67px;
+  min-height: 67px;
+  max-height: 67px;
   overflow-y: auto;
 }
 
 .memo-textarea {
-  height: 96px;
-  min-height: 96px;
-  max-height: 96px;
+  height: 67px;
+  min-height: 67px;
+  max-height: 67px;
   overflow-y: auto;
 }
 
 .body-textarea {
-  height: 266px;
-  min-height: 266px;
-  max-height: 266px;
+  height: 186px;
+  min-height: 186px;
+  max-height: 186px;
   overflow-y: auto;
 }
 
@@ -176,7 +204,7 @@ textarea:disabled {
 
 .save-button {
   width: 100%;
-  min-height: 60px;
+  min-height: 44px;
   border: 0;
   border-radius: 8px;
   display: inline-flex;
@@ -209,7 +237,7 @@ textarea:disabled {
 
 .photo-button {
   width: 100%;
-  min-height: 58px;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: 8px;
   display: inline-flex;
@@ -328,17 +356,23 @@ textarea:disabled {
   }
 
   .title-textarea {
-    height: 96px;
-    min-height: 96px;
+    height: 67px;
+    min-height: 67px;
   }
 
   .memo-textarea {
-    height: 96px;
-    min-height: 96px;
+    height: 67px;
+    min-height: 67px;
   }
 
   .body-textarea {
-    height: 266px;
-    min-height: 266px;
+    height: 186px;
+    min-height: 186px;
+  }
+}
+
+@media (max-width: 390px) {
+  .field-row {
+    grid-template-columns: 1fr;
   }
 }
