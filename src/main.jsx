@@ -11,6 +11,7 @@ const TEXT = {
   typeLoading: "\uC720\uD615 \uBD88\uB7EC\uC624\uB294 \uC911",
   typeNoOptions: "\uC720\uD615 \uC635\uC158 \uC5C6\uC74C",
   dateLabel: "\uB0A0\uC9DC",
+  dateEmpty: "\uB0A0\uC9DC\uB97C \uC120\uD0DD\uD558\uC138\uC694",
   titleLabel: "\uC81C\uBAA9",
   titlePlaceholder: "\uB0B4\uC6A9\uC744 \uC785\uB825\uD558\uC138\uC694",
   memoLabel: "\uBA54\uBAA8",
@@ -38,12 +39,17 @@ function getTodayValue() {
   return `${year}-${month}-${day}`;
 }
 
+function formatDateForDisplay(dateValue) {
+  const [, month, day] = dateValue.split("-");
+  return `${Number(month)}. ${Number(day)}.`;
+}
+
 function App() {
   const [content, setContent] = useState("");
   const [memo, setMemo] = useState("");
   const [bodyContent, setBodyContent] = useState("");
   const [images, setImages] = useState([]);
-  const [entryDate, setEntryDate] = useState(getTodayValue);
+  const [entryDate, setEntryDate] = useState("");
   const [type, setType] = useState("");
   const [typePropertyName, setTypePropertyName] = useState("\uC720\uD615");
   const [typeOptions, setTypeOptions] = useState([]);
@@ -190,7 +196,7 @@ function App() {
       setMemo("");
       setBodyContent("");
       setImages([]);
-      setEntryDate(getTodayValue());
+      setEntryDate("");
       showToast(TEXT.saved, "success");
       requestAnimationFrame(() => textareaRef.current?.focus());
     } catch (error) {
@@ -214,6 +220,7 @@ function App() {
             <label className="form-field type-field">
               <span>{TEXT.type}</span>
               <select
+                className={!type ? "is-placeholder" : ""}
                 value={type}
                 onChange={(event) => setType(event.target.value)}
                 disabled={isSaving || isLoadingTypes || typeOptions.length === 0}
@@ -231,14 +238,17 @@ function App() {
 
             <label className="form-field date-field">
               <span>{TEXT.dateLabel}</span>
-              <input
-                className="date-input"
-                type="date"
-                value={entryDate}
-                onChange={(event) => setEntryDate(event.target.value)}
-                aria-label={TEXT.dateLabel}
-                disabled={isSaving}
-              />
+              <div className={`date-picker ${!entryDate ? "is-placeholder" : ""}`}>
+                <span>{entryDate ? formatDateForDisplay(entryDate) : TEXT.dateEmpty}</span>
+                <input
+                  className="date-input"
+                  type="date"
+                  value={entryDate}
+                  onChange={(event) => setEntryDate(event.target.value)}
+                  aria-label={TEXT.dateLabel}
+                  disabled={isSaving}
+                />
+              </div>
             </label>
           </div>
 
