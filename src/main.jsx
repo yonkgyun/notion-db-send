@@ -10,6 +10,7 @@ const TEXT = {
   typeEmpty: "\uC120\uD0DD",
   typeLoading: "\uC720\uD615 \uBD88\uB7EC\uC624\uB294 \uC911",
   typeNoOptions: "\uC720\uD615 \uC635\uC158 \uC5C6\uC74C",
+  dateLabel: "\uB0A0\uC9DC",
   titleLabel: "\uC81C\uBAA9",
   titlePlaceholder: "\uB0B4\uC6A9\uC744 \uC785\uB825\uD558\uC138\uC694",
   memoLabel: "\uBA54\uBAA8",
@@ -28,11 +29,21 @@ const TEXT = {
   savingError: "\uC800\uC7A5 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4."
 };
 
+function getTodayValue() {
+  const now = new Date();
+  const koreaNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+  const year = koreaNow.getFullYear();
+  const month = String(koreaNow.getMonth() + 1).padStart(2, "0");
+  const day = String(koreaNow.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function App() {
   const [content, setContent] = useState("");
   const [memo, setMemo] = useState("");
   const [bodyContent, setBodyContent] = useState("");
   const [images, setImages] = useState([]);
+  const [entryDate, setEntryDate] = useState(getTodayValue);
   const [type, setType] = useState("");
   const [typePropertyName, setTypePropertyName] = useState("\uC720\uD615");
   const [typeOptions, setTypeOptions] = useState([]);
@@ -166,7 +177,7 @@ function App() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ content: trimmed, memo, bodyContent, images, type, typePropertyName })
+        body: JSON.stringify({ content: trimmed, memo, bodyContent, images, type, typePropertyName, entryDate })
       });
 
       const payload = await response.json().catch(() => ({}));
@@ -179,6 +190,7 @@ function App() {
       setMemo("");
       setBodyContent("");
       setImages([]);
+      setEntryDate(getTodayValue());
       showToast(TEXT.saved, "success");
       requestAnimationFrame(() => textareaRef.current?.focus());
     } catch (error) {
@@ -198,23 +210,37 @@ function App() {
         </header>
 
         <form className="memo-form" onSubmit={handleSubmit}>
-          <label className="form-field">
-            <span>{TEXT.type}</span>
-            <select
-              value={type}
-              onChange={(event) => setType(event.target.value)}
-              disabled={isSaving || isLoadingTypes || typeOptions.length === 0}
-            >
-              <option value="">
-                {isLoadingTypes ? TEXT.typeLoading : typeOptions.length === 0 ? TEXT.typeNoOptions : TEXT.typeEmpty}
-              </option>
-              {typeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+          <div className="field-row">
+            <label className="form-field type-field">
+              <span>{TEXT.type}</span>
+              <select
+                value={type}
+                onChange={(event) => setType(event.target.value)}
+                disabled={isSaving || isLoadingTypes || typeOptions.length === 0}
+              >
+                <option value="">
+                  {isLoadingTypes ? TEXT.typeLoading : typeOptions.length === 0 ? TEXT.typeNoOptions : TEXT.typeEmpty}
                 </option>
-              ))}
-            </select>
-          </label>
+                {typeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="form-field date-field">
+              <span>{TEXT.dateLabel}</span>
+              <input
+                className="date-input"
+                type="date"
+                value={entryDate}
+                onChange={(event) => setEntryDate(event.target.value)}
+                aria-label={TEXT.dateLabel}
+                disabled={isSaving}
+              />
+            </label>
+          </div>
 
           <label className="form-field">
             <span>{TEXT.titleLabel}</span>
