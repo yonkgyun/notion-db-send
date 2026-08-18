@@ -99,7 +99,7 @@ h1 {
 
 .field-row {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(142px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--field-gap);
   align-items: end;
 }
@@ -368,11 +368,5 @@ textarea:disabled {
   .body-textarea {
     height: 186px;
     min-height: 186px;
-  }
-}
-
-@media (max-width: 390px) {
-  .field-row {
-    grid-template-columns: 1fr;
   }
 }
