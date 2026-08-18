@@ -27,6 +27,10 @@ function getKoreaDate() {
   }).format(new Date());
 }
 
+function getValidDate(dateText) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateText || "") ? dateText : getKoreaDate();
+}
+
 function textToParagraphBlocks(text) {
   return chunkText(text, 1900).map((chunk) => ({
     object: "block",
@@ -144,6 +148,7 @@ export default async function handler(request, response) {
     const images = Array.isArray(body.images) ? body.images : [];
     const type = String(body.type || "").trim();
     const typePropertyName = String(body.typePropertyName || TYPE_PROPERTY).trim();
+    const entryDate = getValidDate(String(body.entryDate || "").trim());
 
     if (!content) {
       return sendJson(response, 400, { message: "\uC800\uC7A5\uD560 \uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694." });
@@ -159,7 +164,7 @@ export default async function handler(request, response) {
       },
       [DATE_PROPERTY]: {
         date: {
-          start: getKoreaDate()
+          start: entryDate
         }
       }
     };
