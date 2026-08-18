@@ -98,7 +98,7 @@ h1 {
 
 .field-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
   gap: var(--field-gap);
   align-items: end;
 }
@@ -120,12 +120,17 @@ select {
   background-repeat: no-repeat;
   background-size: 18px 18px;
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 760;
   outline: none;
   box-shadow: var(--shadow);
   appearance: none;
   -webkit-appearance: none;
+}
+
+select.is-placeholder,
+.date-picker.is-placeholder {
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
 }
 
 select:focus {
@@ -135,26 +140,57 @@ select:focus {
     0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
-input[type="date"] {
+.date-picker {
+  position: relative;
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
   height: 52px;
   min-height: 52px;
   border: 0;
   border-radius: 22px;
-  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
   background: var(--panel);
   color: var(--text);
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 760;
+  line-height: 1;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.date-picker span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+input[type="date"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  padding: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 16px;
   font-weight: 760;
   outline: none;
-  box-shadow: var(--shadow);
+  box-shadow: none;
+  opacity: 0;
   appearance: none;
   -webkit-appearance: none;
 }
 
 input[type="date"]::-webkit-date-and-time-value {
+  color: currentColor;
   margin: 0;
   text-align: center;
 }
@@ -164,7 +200,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 0;
 }
 
-input[type="date"]:focus {
+.date-picker:focus-within {
   border-color: color-mix(in srgb, var(--button) 62%, var(--border));
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--button) 18%, transparent),
