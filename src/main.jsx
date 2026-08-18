@@ -4,7 +4,7 @@ import { ImagePlus, Send, X } from "lucide-react";
 import "./styles.css";
 
 const TEXT = {
-  title: "\uBE60\uB978 \uB4F1\uB85D",
+  title: "\uBE60\uB978 \uD560\uC77C \uCD94\uAC00",
   subtitle: "Notion quick capture",
   type: "\uC720\uD615",
   typeEmpty: "\uC120\uD0DD",
