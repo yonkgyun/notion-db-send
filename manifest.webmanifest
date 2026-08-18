@@ -1,13 +1,13 @@
 {
-  "name": "빠른 등록",
-  "short_name": "빠른 등록",
-  "description": "메모를 빠르게 Notion 데이터베이스에 저장합니다.",
+  "name": "빠른 할일 추가",
+  "short_name": "빠른 할일",
+  "description": "할 일을 빠르게 Notion 데이터베이스에 저장합니다.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f7f6f3",
-  "theme_color": "#f7f6f3",
+  "background_color": "#f3f3f7",
+  "theme_color": "#f3f3f7",
   "icons": [
     {
       "src": "/icon-192.png",
