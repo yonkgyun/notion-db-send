@@ -78,7 +78,7 @@ input {
 h1 {
   margin: 0;
   color: var(--text);
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.12;
   font-weight: 760;
   letter-spacing: 0;
@@ -167,16 +167,16 @@ textarea {
 }
 
 .title-textarea {
-  height: 67px;
-  min-height: 67px;
-  max-height: 67px;
+  height: 82px;
+  min-height: 82px;
+  max-height: 82px;
   overflow-y: auto;
 }
 
 .memo-textarea {
-  height: 67px;
-  min-height: 67px;
-  max-height: 67px;
+  height: 82px;
+  min-height: 82px;
+  max-height: 82px;
   overflow-y: auto;
 }
 
@@ -356,13 +356,13 @@ textarea:disabled {
   }
 
   .title-textarea {
-    height: 67px;
-    min-height: 67px;
+    height: 82px;
+    min-height: 82px;
   }
 
   .memo-textarea {
-    height: 67px;
-    min-height: 67px;
+    height: 82px;
+    min-height: 82px;
   }
 
   .body-textarea {
