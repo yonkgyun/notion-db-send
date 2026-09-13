@@ -4,10 +4,7 @@ import { ImagePlus, Send, X } from "lucide-react";
 import "./styles.css";
 
 const TEXT = {
-  title: "\uBE60\uB978 \uD560\uC77C \uCD94\uAC00",
-  taskTitle: "\uBE60\uB978 \uD560\uC77C \uCD94\uAC00",
-  noteTitle: "\uBE60\uB978 \uB178\uD2B8 \uCD94\uAC00",
-  subtitle: "Notion quick capture",
+  title: "\uB178\uC158 \uD560\uC77C/\uB178\uD2B8 \uAE30\uB85D",
   taskMode: "\uD560\uC77C",
   noteMode: "\uB178\uD2B8",
   type: "\uC720\uD615",
@@ -230,11 +227,29 @@ function App() {
     <main className="app-shell">
       <section className="quick-panel" aria-label={TEXT.title}>
         <header className="app-header">
-          <p className="eyebrow">{TEXT.subtitle}</p>
-          <h1>{mode === "note" ? TEXT.noteTitle : TEXT.taskTitle}</h1>
+          <h1>{TEXT.title}</h1>
+          <button
+            className="header-save-button"
+            type="submit"
+            form="memo-form"
+            disabled={isSaving || !content.trim()}
+          >
+            <Send size={18} strokeWidth={2.3} aria-hidden="true" />
+            <span>{isSaving ? TEXT.saving : TEXT.save}</span>
+          </button>
         </header>
 
-        <form className="memo-form" onSubmit={handleSubmit}>
+        <form id="memo-form" className="memo-form" onSubmit={handleSubmit}>
+          <input
+            ref={photoInputRef}
+            className="photo-input"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handlePhotoChange}
+            disabled={isSaving}
+          />
+
           <div className="mode-tabs" role="tablist" aria-label="Save target">
             <button
               className={mode === "task" ? "active" : ""}
@@ -258,7 +273,7 @@ function App() {
             </button>
           </div>
 
-          <div className={`field-row ${mode === "note" ? "single-field-row" : ""}`}>
+          <div className={`field-row ${mode === "note" ? "note-field-row" : ""}`}>
             <label className="form-field type-field">
               <span>{mode === "note" ? TEXT.noteType : TEXT.type}</span>
               <select
@@ -278,6 +293,21 @@ function App() {
               </select>
             </label>
 
+            {mode === "note" && (
+              <div className="form-field note-photo-field">
+                <span>{TEXT.photosLabel}</span>
+                <button
+                  className="photo-button"
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={isSaving || images.length >= 5}
+                >
+                  <ImagePlus size={20} strokeWidth={2.2} aria-hidden="true" />
+                  <span>{TEXT.addPhotos}</span>
+                </button>
+              </div>
+            )}
+
             {mode === "task" && <label className="form-field date-field">
               <span>{TEXT.dateLabel}</span>
               <div className={`date-picker ${!entryDate ? "is-placeholder" : ""}`}>
@@ -293,6 +323,19 @@ function App() {
               </div>
             </label>}
           </div>
+
+          {mode === "note" && images.length > 0 && (
+            <div className="photo-grid" aria-label={TEXT.photosLabel}>
+              {images.map((image) => (
+                <div className="photo-thumb" key={image.id}>
+                  <img src={image.dataUrl} alt="" />
+                  <button type="button" onClick={() => removeImage(image.id)} aria-label="Remove photo">
+                    <X size={16} strokeWidth={2.5} aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           <label className="form-field">
             <span>{TEXT.titleLabel}</span>
@@ -334,17 +377,8 @@ function App() {
             />
           </label>}
 
-          <div className="form-field">
+          {mode === "task" && <div className="form-field">
             <span>{TEXT.photosLabel}</span>
-            <input
-              ref={photoInputRef}
-              className="photo-input"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handlePhotoChange}
-              disabled={isSaving}
-            />
             <button
               className="photo-button"
               type="button"
@@ -366,12 +400,7 @@ function App() {
                 ))}
               </div>
             )}
-          </div>
-
-          <button className="save-button" type="submit" disabled={isSaving || !content.trim()}>
-            <Send size={22} strokeWidth={2.3} aria-hidden="true" />
-            <span>{isSaving ? TEXT.saving : TEXT.save}</span>
-          </button>
+          </div>}
         </form>
       </section>
 

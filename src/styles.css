@@ -16,7 +16,7 @@
   --button-text: #ffffff;
   --button-disabled: rgba(255, 255, 255, 0.68);
   --danger: #c2410c;
-  --success: #256f3f;
+  --success: #2563eb;
   --shadow: 0 16px 42px rgba(21, 21, 31, 0.07);
   --field-gap: 13px;
 }
@@ -62,25 +62,45 @@ input {
 }
 
 .app-header {
-  display: grid;
-  gap: 8px;
-}
-
-.eyebrow {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.4;
-  font-weight: 560;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 h1 {
   margin: 0;
   color: var(--text);
-  font-size: 29px;
-  line-height: 1.08;
+  min-width: 0;
+  font-size: 22px;
+  line-height: 1.2;
   font-weight: 820;
   letter-spacing: 0;
+}
+
+.header-save-button {
+  flex: 0 0 auto;
+  min-width: 82px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 760;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.header-save-button:disabled {
+  background: rgba(17, 17, 17, 0.2);
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .memo-form {
@@ -110,9 +130,9 @@ h1 {
 }
 
 .mode-tabs button.active {
-  background: var(--panel);
-  color: var(--text);
-  box-shadow: var(--shadow);
+  background: #16794b;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(22, 121, 75, 0.24);
 }
 
 .mode-tabs button:disabled {
@@ -139,8 +159,8 @@ h1 {
   min-width: 0;
 }
 
-.single-field-row {
-  grid-template-columns: 1fr;
+.note-field-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 select {
@@ -294,42 +314,13 @@ textarea:disabled {
   opacity: 0.82;
 }
 
-.save-button {
-  width: 100%;
-  min-height: 52px;
-  border: 0;
-  border-radius: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: #111111;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 740;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
-  touch-action: manipulation;
-}
-
-.save-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.save-button:disabled {
-  background: rgba(17, 17, 17, 0.22);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
 .photo-input {
   display: none;
 }
 
 .photo-button {
   width: 100%;
-  min-height: 44px;
+  min-height: 52px;
   border: 0;
   border-radius: 22px;
   display: inline-flex;
@@ -343,6 +334,13 @@ textarea:disabled {
   cursor: pointer;
   box-shadow: var(--shadow);
   touch-action: manipulation;
+}
+
+.note-photo-field .photo-button {
+  height: 52px;
+  padding: 0 10px;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
 .photo-button:disabled {
@@ -439,6 +437,11 @@ textarea:disabled {
   .mode-tabs {
     background: rgba(255, 255, 255, 0.06);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .mode-tabs button.active {
+    background: #2f9b68;
+    color: #ffffff;
   }
 }
 
