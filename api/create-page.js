@@ -13,6 +13,15 @@ function sendJson(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
+function getNotionErrorMessage(payload, mode) {
+  if (payload?.code === "object_not_found") {
+    const target = mode === "note" ? "노트" : "할일";
+    return `${target} 데이터베이스를 찾을 수 없습니다. Notion에서 이 데이터베이스를 연동에 공유한 뒤 다시 시도해주세요.`;
+  }
+
+  return payload?.message || "노션 저장에 실패했습니다.";
+}
+
 function chunkText(text, size = 1900) {
   const chunks = [];
   for (let index = 0; index < text.length; index += size) {
@@ -235,7 +244,7 @@ export default async function handler(request, response) {
 
     if (!notionResponse.ok) {
       return sendJson(response, notionResponse.status, {
-        message: notionPayload.message || "\uB178\uC158 \uC800\uC7A5\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4."
+        message: getNotionErrorMessage(notionPayload, mode)
       });
     }
 

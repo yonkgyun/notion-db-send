@@ -1,5 +1,5 @@
-const CACHE_NAME = "quick-notion-pwa-v3";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
+const CACHE_NAME = "quick-notion-pwa-v4";
+const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/memo-icon-192.png", "/memo-icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
