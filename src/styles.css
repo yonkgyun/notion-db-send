@@ -18,7 +18,7 @@
   --danger: #c2410c;
   --success: #2563eb;
   --shadow: 0 16px 42px rgba(21, 21, 31, 0.07);
-  --field-gap: 13px;
+  --field-gap: 11px;
 }
 
 * {
@@ -50,15 +50,15 @@ input {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  padding: max(26px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  padding: max(24px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
 }
 
 .quick-panel {
   width: min(100%, 520px);
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding-top: 20px;
+  gap: 16px;
+  padding-top: 18px;
 }
 
 .app-header {
@@ -72,7 +72,7 @@ h1 {
   margin: 0;
   color: var(--text);
   min-width: 0;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.2;
   font-weight: 820;
   letter-spacing: 0;
@@ -80,25 +80,25 @@ h1 {
 
 .header-save-button {
   flex: 0 0 auto;
-  min-width: 82px;
-  min-height: 40px;
+  min-width: 78px;
+  min-height: 38px;
   border: 0;
   border-radius: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 14px;
-  background: #111111;
+  padding: 0 12px;
+  background: #16794b;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 760;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 10px 24px rgba(22, 121, 75, 0.22);
 }
 
 .header-save-button:disabled {
-  background: rgba(17, 17, 17, 0.2);
+  background: rgba(22, 121, 75, 0.22);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -111,28 +111,28 @@ h1 {
 .mode-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 4px;
+  gap: 6px;
+  padding: 3px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.58);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .mode-tabs button {
-  min-height: 42px;
+  min-height: 40px;
   border: 0;
   border-radius: 20px;
   background: transparent;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 780;
   cursor: pointer;
 }
 
 .mode-tabs button.active {
-  background: #16794b;
+  background: #2563eb;
   color: #ffffff;
-  box-shadow: 0 10px 24px rgba(22, 121, 75, 0.24);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
 }
 
 .mode-tabs button:disabled {
@@ -142,15 +142,14 @@ h1 {
 
 .form-field {
   display: grid;
-  gap: 7px;
+  gap: 5px;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 780;
 }
 
 .field-row {
   display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
   gap: var(--field-gap);
   align-items: end;
 }
@@ -163,20 +162,35 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.task-field-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.task-field-row select,
+.task-field-row .date-picker,
+.task-field-row .photo-button {
+  font-size: 12px;
+}
+
+.task-field-row .date-picker {
+  padding-right: 6px;
+  padding-left: 6px;
+}
+
 select {
   width: 100%;
-  height: 52px;
-  min-height: 52px;
+  height: 48px;
+  min-height: 48px;
   border: 0;
   border-radius: 22px;
-  padding: 0 52px 0 18px;
+  padding: 0 34px 0 12px;
   background: var(--panel);
   background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%23222222' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: right 18px center;
+  background-position: right 12px center;
   background-repeat: no-repeat;
-  background-size: 18px 18px;
+  background-size: 16px 16px;
   color: var(--text);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 760;
   outline: none;
   box-shadow: var(--shadow);
@@ -199,17 +213,17 @@ select:focus {
 .date-picker {
   position: relative;
   width: 100%;
-  height: 52px;
-  min-height: 52px;
+  height: 48px;
+  min-height: 48px;
   border: 0;
   border-radius: 22px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 14px;
+  padding: 0 10px;
   background: var(--panel);
   color: var(--text);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 760;
   line-height: 1;
   box-shadow: var(--shadow);
@@ -236,7 +250,7 @@ input[type="date"] {
   padding: 0;
   background: transparent;
   color: transparent;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 760;
   outline: none;
   box-shadow: none;
@@ -268,35 +282,35 @@ textarea {
   resize: none;
   border: 0;
   border-radius: 22px;
-  padding: 13px 18px;
+  padding: 11px 16px;
   background: var(--panel);
   color: var(--text);
   line-height: 1.55;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 650;
   outline: none;
   box-shadow: var(--shadow);
 }
 
 .title-textarea {
-  height: 82px;
-  min-height: 82px;
-  max-height: 82px;
+  height: 68px;
+  min-height: 68px;
+  max-height: 68px;
   overflow-y: auto;
 }
 
 .memo-textarea {
-  height: 82px;
-  min-height: 82px;
-  max-height: 82px;
+  height: 68px;
+  min-height: 68px;
+  max-height: 68px;
   overflow-y: auto;
 }
 
 .body-textarea {
-  height: 186px;
-  min-height: 186px;
-  max-height: 186px;
-  overflow-y: auto;
+  height: 68px;
+  min-height: 68px;
+  max-height: none;
+  overflow-y: hidden;
 }
 
 textarea::placeholder {
@@ -320,7 +334,7 @@ textarea:disabled {
 
 .photo-button {
   width: 100%;
-  min-height: 52px;
+  min-height: 48px;
   border: 0;
   border-radius: 22px;
   display: inline-flex;
@@ -329,17 +343,17 @@ textarea:disabled {
   gap: 10px;
   background: var(--panel);
   color: var(--text);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 740;
   cursor: pointer;
   box-shadow: var(--shadow);
   touch-action: manipulation;
 }
 
-.note-photo-field .photo-button {
-  height: 52px;
-  padding: 0 10px;
-  font-size: 15px;
+.compact-photo-field .photo-button {
+  height: 48px;
+  padding: 0 8px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -352,7 +366,7 @@ textarea:disabled {
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .photo-thumb {
@@ -394,14 +408,14 @@ textarea:disabled {
   bottom: max(18px, env(safe-area-inset-bottom));
   margin: 0 auto;
   width: min(calc(100% - 32px), 480px);
-  min-height: 48px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 680;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
@@ -440,7 +454,7 @@ textarea:disabled {
   }
 
   .mode-tabs button.active {
-    background: #2f9b68;
+    background: #3b82f6;
     color: #ffffff;
   }
 }
@@ -456,17 +470,17 @@ textarea:disabled {
   }
 
   .title-textarea {
-    height: 82px;
-    min-height: 82px;
+    height: 68px;
+    min-height: 68px;
   }
 
   .memo-textarea {
-    height: 82px;
-    min-height: 82px;
+    height: 68px;
+    min-height: 68px;
   }
 
   .body-textarea {
-    height: 186px;
-    min-height: 186px;
+    height: 68px;
+    min-height: 68px;
   }
 }

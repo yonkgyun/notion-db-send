@@ -4,7 +4,7 @@ import { ImagePlus, Send, X } from "lucide-react";
 import "./styles.css";
 
 const TEXT = {
-  title: "\uB178\uC158 \uD560\uC77C/\uB178\uD2B8 \uAE30\uB85D",
+  title: "\uD560\uC77C, \uB178\uD2B8 \uAE30\uB85D",
   taskMode: "\uD560\uC77C",
   noteMode: "\uB178\uD2B8",
   type: "\uC720\uD615",
@@ -42,8 +42,11 @@ function getTodayValue() {
 }
 
 function formatDateForDisplay(dateValue) {
-  const [, month, day] = dateValue.split("-");
-  return `${Number(month)}. ${Number(day)}.`;
+  const [year, month, day] = dateValue.split("-");
+  const weekday = ["일", "월", "화", "수", "목", "금", "토"][
+    new Date(`${year}-${month}-${day}T12:00:00`).getDay()
+  ];
+  return `${Number(month)}.${Number(day)}(${weekday})`;
 }
 
 function App() {
@@ -60,6 +63,7 @@ function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const textareaRef = useRef(null);
+  const bodyTextareaRef = useRef(null);
   const photoInputRef = useRef(null);
   const toastTimerRef = useRef(null);
 
@@ -173,6 +177,13 @@ function App() {
     setImages((current) => current.filter((image) => image.id !== id));
   }
 
+  function handleBodyChange(event) {
+    const textarea = event.target;
+    setBodyContent(textarea.value);
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -214,7 +225,12 @@ function App() {
       setImages([]);
       setEntryDate("");
       showToast(TEXT.saved, "success");
-      requestAnimationFrame(() => textareaRef.current?.focus());
+      requestAnimationFrame(() => {
+        if (bodyTextareaRef.current) {
+          bodyTextareaRef.current.style.height = "";
+        }
+        textareaRef.current?.focus();
+      });
     } catch (error) {
       showToast(error.message || TEXT.savingError, "error");
       requestAnimationFrame(() => textareaRef.current?.focus());
@@ -234,7 +250,7 @@ function App() {
             form="memo-form"
             disabled={isSaving || !content.trim()}
           >
-            <Send size={18} strokeWidth={2.3} aria-hidden="true" />
+            <Send size={16} strokeWidth={2.3} aria-hidden="true" />
             <span>{isSaving ? TEXT.saving : TEXT.save}</span>
           </button>
         </header>
@@ -273,7 +289,7 @@ function App() {
             </button>
           </div>
 
-          <div className={`field-row ${mode === "note" ? "note-field-row" : ""}`}>
+          <div className={`field-row ${mode === "note" ? "note-field-row" : "task-field-row"}`}>
             <label className="form-field type-field">
               <span>{mode === "note" ? TEXT.noteType : TEXT.type}</span>
               <select
@@ -293,21 +309,6 @@ function App() {
               </select>
             </label>
 
-            {mode === "note" && (
-              <div className="form-field note-photo-field">
-                <span>{TEXT.photosLabel}</span>
-                <button
-                  className="photo-button"
-                  type="button"
-                  onClick={() => photoInputRef.current?.click()}
-                  disabled={isSaving || images.length >= 5}
-                >
-                  <ImagePlus size={20} strokeWidth={2.2} aria-hidden="true" />
-                  <span>{TEXT.addPhotos}</span>
-                </button>
-              </div>
-            )}
-
             {mode === "task" && <label className="form-field date-field">
               <span>{TEXT.dateLabel}</span>
               <div className={`date-picker ${!entryDate ? "is-placeholder" : ""}`}>
@@ -322,15 +323,28 @@ function App() {
                 />
               </div>
             </label>}
+
+            <div className="form-field compact-photo-field">
+              <span>{TEXT.photosLabel}</span>
+              <button
+                className="photo-button"
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={isSaving || images.length >= 5}
+              >
+                <ImagePlus size={18} strokeWidth={2.2} aria-hidden="true" />
+                <span>{TEXT.photosLabel}</span>
+              </button>
+            </div>
           </div>
 
-          {mode === "note" && images.length > 0 && (
+          {images.length > 0 && (
             <div className="photo-grid" aria-label={TEXT.photosLabel}>
               {images.map((image) => (
                 <div className="photo-thumb" key={image.id}>
                   <img src={image.dataUrl} alt="" />
                   <button type="button" onClick={() => removeImage(image.id)} aria-label="Remove photo">
-                    <X size={16} strokeWidth={2.5} aria-hidden="true" />
+                    <X size={14} strokeWidth={2.5} aria-hidden="true" />
                   </button>
                 </div>
               ))}
@@ -368,39 +382,15 @@ function App() {
             <span>{TEXT.bodyLabel}</span>
             <textarea
               className="body-textarea"
+              ref={bodyTextareaRef}
               value={bodyContent}
-              onChange={(event) => setBodyContent(event.target.value)}
+              onChange={handleBodyChange}
               placeholder={TEXT.bodyPlaceholder}
               aria-label={TEXT.bodyLabel}
-              rows={6}
+              rows={2}
               disabled={isSaving}
             />
           </label>}
-
-          {mode === "task" && <div className="form-field">
-            <span>{TEXT.photosLabel}</span>
-            <button
-              className="photo-button"
-              type="button"
-              onClick={() => photoInputRef.current?.click()}
-              disabled={isSaving || images.length >= 5}
-            >
-              <ImagePlus size={22} strokeWidth={2.2} aria-hidden="true" />
-              <span>{TEXT.addPhotos}</span>
-            </button>
-            {images.length > 0 && (
-              <div className="photo-grid" aria-label={TEXT.photosLabel}>
-                {images.map((image) => (
-                  <div className="photo-thumb" key={image.id}>
-                    <img src={image.dataUrl} alt="" />
-                    <button type="button" onClick={() => removeImage(image.id)} aria-label="Remove photo">
-                      <X size={16} strokeWidth={2.5} aria-hidden="true" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>}
         </form>
       </section>
 
