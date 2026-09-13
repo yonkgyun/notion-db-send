@@ -1,5 +1,6 @@
 const NOTION_VERSION = "2022-06-28";
 const TYPE_PROPERTY = process.env.NOTION_TYPE_PROPERTY || "\uC720\uD615";
+const NOTES_TYPE_PROPERTY = process.env.NOTION_NOTES_TYPE_PROPERTY || "\uBD84\uB958";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -27,13 +28,13 @@ function getPropertyOptions(property) {
   return [];
 }
 
-function findSelectableProperty(properties) {
+function findSelectableProperty(properties, preferredPropertyName = TYPE_PROPERTY) {
   if (!properties) {
     return { name: null, property: null };
   }
 
-  if (properties[TYPE_PROPERTY]) {
-    return { name: TYPE_PROPERTY, property: properties[TYPE_PROPERTY] };
+  if (properties[preferredPropertyName]) {
+    return { name: preferredPropertyName, property: properties[preferredPropertyName] };
   }
 
   const entry = Object.entries(properties).find(([, property]) => {
@@ -54,7 +55,10 @@ export default async function handler(request, response) {
   }
 
   const apiKey = process.env.NOTION_API_KEY;
-  const databaseId = process.env.NOTION_DATABASE_ID;
+  const url = new URL(request.url, "http://localhost");
+  const mode = url.searchParams.get("mode") === "note" ? "note" : "task";
+  const databaseId = mode === "note" ? process.env.NOTION_NOTES_DATABASE_ID : process.env.NOTION_DATABASE_ID;
+  const propertyName = mode === "note" ? NOTES_TYPE_PROPERTY : TYPE_PROPERTY;
 
   if (!apiKey || !databaseId) {
     return sendJson(response, 500, { message: "\uB178\uC158 \uD658\uACBD\uBCC0\uC218\uAC00 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4." });
@@ -77,7 +81,7 @@ export default async function handler(request, response) {
       });
     }
 
-    const { name, property: typeProperty } = findSelectableProperty(notionPayload.properties);
+    const { name, property: typeProperty } = findSelectableProperty(notionPayload.properties, propertyName);
 
     return sendJson(response, 200, {
       options: getPropertyOptions(typeProperty),

@@ -8,6 +8,14 @@ function notionApiDevPlugin(mode) {
       const env = loadEnv(mode, process.cwd(), "");
       process.env.NOTION_API_KEY = process.env.NOTION_API_KEY || env.NOTION_API_KEY;
       process.env.NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID || env.NOTION_DATABASE_ID;
+      process.env.NOTION_NAME_PROPERTY = process.env.NOTION_NAME_PROPERTY || env.NOTION_NAME_PROPERTY;
+      process.env.NOTION_DATE_PROPERTY = process.env.NOTION_DATE_PROPERTY || env.NOTION_DATE_PROPERTY;
+      process.env.NOTION_TYPE_PROPERTY = process.env.NOTION_TYPE_PROPERTY || env.NOTION_TYPE_PROPERTY;
+      process.env.NOTION_MEMO_PROPERTY = process.env.NOTION_MEMO_PROPERTY || env.NOTION_MEMO_PROPERTY;
+      process.env.NOTION_NOTES_DATABASE_ID = process.env.NOTION_NOTES_DATABASE_ID || env.NOTION_NOTES_DATABASE_ID;
+      process.env.NOTION_NOTES_NAME_PROPERTY = process.env.NOTION_NOTES_NAME_PROPERTY || env.NOTION_NOTES_NAME_PROPERTY;
+      process.env.NOTION_NOTES_TYPE_PROPERTY = process.env.NOTION_NOTES_TYPE_PROPERTY || env.NOTION_NOTES_TYPE_PROPERTY;
+      process.env.NOTION_NOTES_MEMO_PROPERTY = process.env.NOTION_NOTES_MEMO_PROPERTY || env.NOTION_NOTES_MEMO_PROPERTY;
 
       mountApiRoute(server, "/api/create-page", "./api/create-page.js");
       mountApiRoute(server, "/api/database-options", "./api/database-options.js");

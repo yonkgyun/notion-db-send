@@ -88,6 +88,38 @@ h1 {
   gap: var(--field-gap);
 }
 
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.mode-tabs button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.mode-tabs button.active {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.mode-tabs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
 .form-field {
   display: grid;
   gap: 7px;
@@ -105,6 +137,10 @@ h1 {
 
 .field-row > .form-field {
   min-width: 0;
+}
+
+.single-field-row {
+  grid-template-columns: 1fr;
 }
 
 select {
@@ -398,6 +434,11 @@ textarea:disabled {
 
   select {
     background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%23f2f1ed' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  .mode-tabs {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 }
 

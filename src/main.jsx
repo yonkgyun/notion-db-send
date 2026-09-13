@@ -5,8 +5,13 @@ import "./styles.css";
 
 const TEXT = {
   title: "\uBE60\uB978 \uD560\uC77C \uCD94\uAC00",
+  taskTitle: "\uBE60\uB978 \uD560\uC77C \uCD94\uAC00",
+  noteTitle: "\uBE60\uB978 \uB178\uD2B8 \uCD94\uAC00",
   subtitle: "Notion quick capture",
+  taskMode: "\uD560\uC77C",
+  noteMode: "\uB178\uD2B8",
   type: "\uC720\uD615",
+  noteType: "\uBD84\uB958",
   typeEmpty: "\uC120\uD0DD",
   typeLoading: "\uC720\uD615 \uBD88\uB7EC\uC624\uB294 \uC911",
   typeNoOptions: "\uC720\uD615 \uC635\uC158 \uC5C6\uC74C",
@@ -45,6 +50,7 @@ function formatDateForDisplay(dateValue) {
 }
 
 function App() {
+  const [mode, setMode] = useState("task");
   const [content, setContent] = useState("");
   const [memo, setMemo] = useState("");
   const [bodyContent, setBodyContent] = useState("");
@@ -61,9 +67,6 @@ function App() {
   const toastTimerRef = useRef(null);
 
   useEffect(() => {
-    textareaRef.current?.focus();
-    loadTypeOptions();
-
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/sw.js").catch(() => {});
@@ -71,11 +74,18 @@ function App() {
     }
   }, []);
 
-  async function loadTypeOptions() {
+  useEffect(() => {
+    setType("");
+    setTypePropertyName(mode === "note" ? "\uBD84\uB958" : "\uC720\uD615");
+    loadTypeOptions(mode);
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }, [mode]);
+
+  async function loadTypeOptions(nextMode = mode) {
     setIsLoadingTypes(true);
 
     try {
-      const response = await fetch("/api/database-options");
+      const response = await fetch(`/api/database-options?mode=${nextMode}`);
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -83,7 +93,7 @@ function App() {
       }
 
       setTypeOptions(payload.options || []);
-      setTypePropertyName(payload.propertyName || "\uC720\uD615");
+      setTypePropertyName(payload.propertyName || (nextMode === "note" ? "\uBD84\uB958" : "\uC720\uD615"));
     } catch (error) {
       showToast(error.message || TEXT.typeLoadFailed, "error");
     } finally {
@@ -183,7 +193,16 @@ function App() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ content: trimmed, memo, bodyContent, images, type, typePropertyName, entryDate })
+        body: JSON.stringify({
+          mode,
+          content: trimmed,
+          memo,
+          bodyContent: mode === "task" ? bodyContent : "",
+          images,
+          type,
+          typePropertyName,
+          entryDate
+        })
       });
 
       const payload = await response.json().catch(() => ({}));
@@ -212,13 +231,36 @@ function App() {
       <section className="quick-panel" aria-label={TEXT.title}>
         <header className="app-header">
           <p className="eyebrow">{TEXT.subtitle}</p>
-          <h1>{TEXT.title}</h1>
+          <h1>{mode === "note" ? TEXT.noteTitle : TEXT.taskTitle}</h1>
         </header>
 
         <form className="memo-form" onSubmit={handleSubmit}>
-          <div className="field-row">
+          <div className="mode-tabs" role="tablist" aria-label="Save target">
+            <button
+              className={mode === "task" ? "active" : ""}
+              type="button"
+              role="tab"
+              aria-selected={mode === "task"}
+              onClick={() => setMode("task")}
+              disabled={isSaving}
+            >
+              {TEXT.taskMode}
+            </button>
+            <button
+              className={mode === "note" ? "active" : ""}
+              type="button"
+              role="tab"
+              aria-selected={mode === "note"}
+              onClick={() => setMode("note")}
+              disabled={isSaving}
+            >
+              {TEXT.noteMode}
+            </button>
+          </div>
+
+          <div className={`field-row ${mode === "note" ? "single-field-row" : ""}`}>
             <label className="form-field type-field">
-              <span>{TEXT.type}</span>
+              <span>{mode === "note" ? TEXT.noteType : TEXT.type}</span>
               <select
                 className={!type ? "is-placeholder" : ""}
                 value={type}
@@ -236,7 +278,7 @@ function App() {
               </select>
             </label>
 
-            <label className="form-field date-field">
+            {mode === "task" && <label className="form-field date-field">
               <span>{TEXT.dateLabel}</span>
               <div className={`date-picker ${!entryDate ? "is-placeholder" : ""}`}>
                 <span>{entryDate ? formatDateForDisplay(entryDate) : TEXT.dateEmpty}</span>
@@ -249,7 +291,7 @@ function App() {
                   disabled={isSaving}
                 />
               </div>
-            </label>
+            </label>}
           </div>
 
           <label className="form-field">
@@ -279,7 +321,7 @@ function App() {
             />
           </label>
 
-          <label className="form-field">
+          {mode === "task" && <label className="form-field">
             <span>{TEXT.bodyLabel}</span>
             <textarea
               className="body-textarea"
@@ -290,7 +332,7 @@ function App() {
               rows={6}
               disabled={isSaving}
             />
-          </label>
+          </label>}
 
           <div className="form-field">
             <span>{TEXT.photosLabel}</span>

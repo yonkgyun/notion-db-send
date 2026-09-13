@@ -3,6 +3,9 @@ const NAME_PROPERTY = process.env.NOTION_NAME_PROPERTY || "\uC774\uB984";
 const DATE_PROPERTY = process.env.NOTION_DATE_PROPERTY || "\uB0A0\uC9DC";
 const TYPE_PROPERTY = process.env.NOTION_TYPE_PROPERTY || "\uC720\uD615";
 const MEMO_PROPERTY = process.env.NOTION_MEMO_PROPERTY || "\uBA54\uBAA8";
+const NOTES_NAME_PROPERTY = process.env.NOTION_NOTES_NAME_PROPERTY || "\uC774\uB984";
+const NOTES_TYPE_PROPERTY = process.env.NOTION_NOTES_TYPE_PROPERTY || "\uBD84\uB958";
+const NOTES_MEMO_PROPERTY = process.env.NOTION_NOTES_MEMO_PROPERTY || "\uBA54\uBAA8";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -134,9 +137,10 @@ export default async function handler(request, response) {
   }
 
   const apiKey = process.env.NOTION_API_KEY;
-  const databaseId = process.env.NOTION_DATABASE_ID;
+  const taskDatabaseId = process.env.NOTION_DATABASE_ID;
+  const notesDatabaseId = process.env.NOTION_NOTES_DATABASE_ID;
 
-  if (!apiKey || !databaseId) {
+  if (!apiKey || !taskDatabaseId) {
     return sendJson(response, 500, { message: "\uB178\uC158 \uD658\uACBD\uBCC0\uC218\uAC00 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4." });
   }
 
@@ -147,27 +151,36 @@ export default async function handler(request, response) {
     const bodyContent = String(body.bodyContent || "").trim();
     const images = Array.isArray(body.images) ? body.images : [];
     const type = String(body.type || "").trim();
-    const typePropertyName = String(body.typePropertyName || TYPE_PROPERTY).trim();
+    const mode = body.mode === "note" ? "note" : "task";
+    const databaseId = mode === "note" ? notesDatabaseId : taskDatabaseId;
+    const typePropertyName = String(body.typePropertyName || (mode === "note" ? NOTES_TYPE_PROPERTY : TYPE_PROPERTY)).trim();
     const entryDate = getValidDate(String(body.entryDate || "").trim());
+
+    if (!databaseId) {
+      return sendJson(response, 500, { message: "\uB178\uD2B8 \uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uD658\uACBD\uBCC0\uC218\uAC00 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4." });
+    }
 
     if (!content) {
       return sendJson(response, 400, { message: "\uC800\uC7A5\uD560 \uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694." });
     }
 
     const properties = {
-      [NAME_PROPERTY]: {
+      [mode === "note" ? NOTES_NAME_PROPERTY : NAME_PROPERTY]: {
         title: chunkText(content).map((chunk) => ({
           text: {
             content: chunk
           }
         }))
-      },
-      [DATE_PROPERTY]: {
+      }
+    };
+
+    if (mode === "task") {
+      properties[DATE_PROPERTY] = {
         date: {
           start: entryDate
         }
-      }
-    };
+      };
+    }
 
     if (type) {
       properties[typePropertyName] = {
@@ -178,7 +191,7 @@ export default async function handler(request, response) {
     }
 
     if (memo) {
-      properties[MEMO_PROPERTY] = {
+      properties[mode === "note" ? NOTES_MEMO_PROPERTY : MEMO_PROPERTY] = {
         rich_text: chunkText(memo).map((chunk) => ({
           text: {
             content: chunk
