@@ -244,15 +244,6 @@ function App() {
       <section className="quick-panel" aria-label={TEXT.title}>
         <header className="app-header">
           <h1>{TEXT.title}</h1>
-          <button
-            className="header-save-button"
-            type="submit"
-            form="memo-form"
-            disabled={isSaving || !content.trim()}
-          >
-            <Send size={16} strokeWidth={2.3} aria-hidden="true" />
-            <span>{isSaving ? TEXT.saving : TEXT.save}</span>
-          </button>
         </header>
 
         <form id="memo-form" className="memo-form" onSubmit={handleSubmit}>
@@ -391,6 +382,11 @@ function App() {
               disabled={isSaving}
             />
           </label>}
+
+          <button className="save-button" type="submit" disabled={isSaving || !content.trim()}>
+            <Send size={18} strokeWidth={2.3} aria-hidden="true" />
+            <span>{isSaving ? TEXT.saving : TEXT.save}</span>
+          </button>
         </form>
       </section>
 
