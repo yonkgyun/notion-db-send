@@ -20,11 +20,33 @@ test("all four card overrides survive reload without changing count sources", ()
   const storage = memoryStorage();
   const defaults = resolveCards({}, { task: { url: "https://example.com/task-db" } });
   const draft = structuredClone(defaults);
-  for (const [index, id] of Object.keys(draft).entries()) draft[id] = { label: `Card ${index}`, url: `https://example.com/${index}` };
+  for (const [index, id] of Object.keys(draft).entries()) draft[id] = { ...draft[id], label: `Card ${index}`, url: `https://example.com/${index}` };
   const saved = saveSettings(storage, draft, defaults);
   assert.deepEqual(readSettings(storage), saved);
   assert.deepEqual(resolveCards(readSettings(storage)), draft);
   assert.equal(Object.keys(saved).length, 4);
+});
+
+test("legacy names and links survive the metric settings upgrade", () => {
+  const saved = parseSettings(JSON.stringify({ version: 1, cards: { task: { label: "My page", url: "https://example.com/" } } }));
+  const cards = resolveCards(saved);
+  assert.equal(cards.task.label, "My page");
+  assert.equal(cards.task.url, "https://example.com/");
+  assert.equal(cards.task.metric.mode, "created_today");
+  assert.equal(cards.shortcut1.metric.mode, "none");
+});
+
+test("each card saves its own metric and invalid stored metrics hide counts", () => {
+  const storage = memoryStorage();
+  const defaults = resolveCards({});
+  const draft = structuredClone(defaults);
+  draft.shortcut1.metric = { ...draft.shortcut1.metric, source: "note", mode: "all" };
+  draft.task.metric = { ...draft.task.metric, mode: "unchecked", property: "Done" };
+  saveSettings(storage, draft, defaults);
+  const cards = resolveCards(readSettings(storage));
+  assert.deepEqual(cards.shortcut1.metric, draft.shortcut1.metric);
+  assert.deepEqual(cards.task.metric, draft.task.metric);
+  assert.equal(parseSettings('{"version":2,"cards":{"task":{"metric":{"mode":"bad"}}}}').task.metric.mode, "none");
 });
 
 test("blank URL disables a link, while reset removes overrides", () => {

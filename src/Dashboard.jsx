@@ -1,17 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, CheckSquare2, Link2, NotebookPen, RefreshCw, Settings } from "lucide-react";
 import DashboardSettings from "./DashboardSettings.jsx";
-import { parseSettings, readSettings, resolveCards, SETTINGS_KEY } from "./dashboardSettings.js";
-
-const CARDS = [
-  { kind: "task", Icon: CheckSquare2 },
-  { kind: "note", Icon: NotebookPen }
-];
+import { CARD_SLOTS, parseSettings, readSettings, resolveCards, SETTINGS_KEY } from "./dashboardSettings.js";
 
 export default function Dashboard({ revision }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [loadedKey, setLoadedKey] = useState("");
   const [settings, setSettings] = useState(() => {
     try { return readSettings(window.localStorage); } catch { return {}; }
   });
@@ -19,6 +15,9 @@ export default function Dashboard({ revision }) {
   const settingsButtonRef = useRef(null);
   const refreshRef = useRef(() => {});
   const cards = resolveCards(settings, data);
+  const metricKey = JSON.stringify(Object.fromEntries(CARD_SLOTS.map(({ id }) => [id, cards[id].metric])));
+  const enabledIds = CARD_SLOTS.filter(({ id }) => cards[id].metric.mode !== "none").map(({ id }) => id);
+  const waiting = loading || loadedKey !== metricKey;
 
   useEffect(() => {
     function sync(event) {
@@ -46,11 +45,14 @@ export default function Dashboard({ revision }) {
       controller = current;
       setLoading(true);
       setError("");
-      const timeout = window.setTimeout(() => current.abort(), 20000);
+      const timeout = window.setTimeout(() => current.abort(), 30000);
       try {
-        const response = await fetch("/api/dashboard", { cache: "no-store", signal: current.signal });
+        const metrics = JSON.parse(metricKey);
+        const enabled = CARD_SLOTS.filter(({ id }) => metrics[id].mode !== "none");
+        if (!enabled.length) return;
+        const response = await fetch(`/api/dashboard?cards=${encodeURIComponent(metricKey)}`, { cache: "no-store", signal: current.signal });
         const payload = await response.json();
-        if (!response.ok || !payload.task || !payload.note) throw new Error();
+        if (!response.ok || enabled.some(({ id }) => !payload[id])) throw new Error();
         if (active && controller === current) setData(payload);
       } catch {
         if (active && controller === current) {
@@ -59,7 +61,10 @@ export default function Dashboard({ revision }) {
         }
       } finally {
         window.clearTimeout(timeout);
-        if (active && controller === current) setLoading(false);
+        if (active && controller === current) {
+          setLoadedKey(metricKey);
+          setLoading(false);
+        }
       }
     }
 
@@ -90,15 +95,14 @@ export default function Dashboard({ revision }) {
       window.removeEventListener("online", onReturn);
       document.removeEventListener("visibilitychange", onReturn);
     };
-  }, [revision]);
+  }, [revision, metricKey]);
 
   return (
-    <section className="dashboard" aria-label="오늘의 기록">
+    <section className="dashboard" aria-label="대시보드">
       <div className="dashboard-heading">
-        <h2>오늘의 기록</h2>
         <div className="dashboard-tools">
           <button className="dashboard-refresh" type="button" aria-label="기록 수 새로고침"
-            title="기록 수 새로고침" disabled={loading} onClick={() => refreshRef.current()}>
+            title="기록 수 새로고침" disabled={waiting || enabledIds.length === 0} onClick={() => refreshRef.current()}>
             <RefreshCw size={17} aria-hidden="true" />
           </button>
           <button ref={settingsButtonRef} className="dashboard-refresh" type="button" aria-label="대시보드 설정"
@@ -107,47 +111,37 @@ export default function Dashboard({ revision }) {
           </button>
         </div>
       </div>
-      <div className="dashboard-grid" aria-busy={loading}>
-        {CARDS.map(({ kind, Icon }) => {
-          const result = data?.[kind];
-          const { label, url } = cards[kind];
+      <div className="dashboard-grid" aria-busy={waiting && enabledIds.length > 0}>
+        {CARD_SLOTS.map(({ id }) => {
+          const result = data?.[id];
+          const { label, url, metric } = cards[id];
+          const showCount = metric.mode !== "none";
+          const Icon = !showCount ? Link2 : metric.source === "note" ? NotebookPen : CheckSquare2;
+          const kind = showCount ? metric.source : "shortcut";
           const Card = url ? "a" : "div";
-          const failed = !loading && (error || result?.error || !Number.isInteger(result?.count));
+          const failed = !waiting && (error || result?.error || !Number.isInteger(result?.count));
+          const status = !showCount ? "" : `, ${waiting ? "불러오는 중" : failed ? "조회 실패" : `${result.count}개`}`;
           return (
-            <Card className={`dashboard-card dashboard-${kind}`} key={kind}
+            <Card className={`dashboard-card dashboard-${kind}${!showCount && !url ? " dashboard-pending" : ""}`} key={id}
               {...(url ? { href: url, target: "_blank", rel: "noopener noreferrer" } : {})}
-              aria-label={`${label}, ${loading ? "불러오는 중" : failed ? "조회 실패" : `${result.count}개`}${url ? ". 연결 페이지 열기" : ""}`}>
-              <div className="dashboard-card-top">
+              aria-label={`${label}${status}${url ? ". 연결 페이지 열기" : ""}`}>
+              {(showCount || url) && <div className="dashboard-card-top">
                 <Icon size={18} aria-hidden="true" />
                 {url && <ArrowUpRight size={15} aria-hidden="true" />}
-              </div>
+              </div>}
               <span className="dashboard-label" title={label}>{label}</span>
-              <div className="dashboard-value" aria-live="polite">
-                {loading ? <span className="dashboard-status">불러오는 중</span> : failed ?
+              {showCount && <div className="dashboard-value" aria-live="polite">
+                {waiting ? <span className="dashboard-status">불러오는 중</span> : failed ?
                   <span className="dashboard-status">조회 실패</span> :
                   <><strong>{result.count.toLocaleString("ko-KR")}</strong><span>개</span></>}
-              </div>
+              </div>}
             </Card>
           );
         })}
-        {["shortcut1", "shortcut2"].map((id) => {
-          const { label, url } = cards[id];
-          return url ? (
-            <a className="dashboard-card dashboard-shortcut" key={id} href={url} target="_blank" rel="noopener noreferrer"
-              aria-label={`${label}. 연결 페이지 열기`}>
-              <div className="dashboard-card-top"><Link2 size={18} aria-hidden="true" /><ArrowUpRight size={15} aria-hidden="true" /></div>
-              <span className="dashboard-label" title={label}>{label}</span>
-            </a>
-          ) : (
-            <div className="dashboard-card dashboard-pending" key={id}>
-              <span className="dashboard-label" title={label}>{label}</span>
-            </div>
-          );
-        })}
       </div>
-      {!loading && (error || data?.task?.error || data?.note?.error) && (
+      {!waiting && enabledIds.length > 0 && (error || enabledIds.some((id) => data?.[id]?.error)) && (
         <p className="dashboard-error" role="status">
-          {error || [data.task?.error && `할일: ${data.task.error}`, data.note?.error && `노트: ${data.note.error}`].filter(Boolean).join(" ")}
+          {error || enabledIds.filter((id) => data?.[id]?.error).map((id) => `${cards[id].label}: ${data[id].error}`).join(" ")}
         </p>
       )}
       {settingsOpen && <DashboardSettings cards={cards} defaults={resolveCards({}, data)}

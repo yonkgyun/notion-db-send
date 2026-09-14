@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RotateCcw, X } from "lucide-react";
 import { CARD_SLOTS, saveSettings } from "./dashboardSettings.js";
+import { METRIC_MODES } from "../shared/dashboard-metrics.js";
+import MetricGuide from "./MetricGuide.jsx";
 
 export default function DashboardSettings({ cards, defaults, onSave, onClose }) {
   const dialogRef = useRef(null);
@@ -21,6 +23,15 @@ export default function DashboardSettings({ cards, defaults, onSave, onClose }) 
   function update(id, field, value) {
     setDraft((current) => ({ ...current, [id]: { ...current[id], [field]: value } }));
     setError("");
+  }
+
+  function updateMetric(id, field, value) {
+    const metric = { ...draft[id].metric, [field]: value };
+    if (field === "mode") {
+      metric.property = value === "date_today" ? "날짜" : ["unchecked", "checked"].includes(value) ? "완료" : "";
+      metric.value = "";
+    }
+    update(id, "metric", metric);
   }
 
   function submit(event) {
@@ -45,6 +56,7 @@ export default function DashboardSettings({ cards, defaults, onSave, onClose }) 
           </button>
         </header>
         <div className="settings-fields">
+          <MetricGuide />
           {CARD_SLOTS.map(({ id, position }) => (
             <fieldset key={id}>
               <legend>{position}</legend>
@@ -55,6 +67,38 @@ export default function DashboardSettings({ cards, defaults, onSave, onClose }) 
               <input id={`card-${id}-url`} type="text" inputMode="url" autoCapitalize="none" autoCorrect="off"
                 spellCheck={false} value={draft[id].url} placeholder="https://" maxLength={4096}
                 aria-label={`${position} 연결 링크`} onChange={(event) => update(id, "url", event.target.value)} />
+              <label htmlFor={`card-${id}-mode`}>표시할 숫자</label>
+              <select id={`card-${id}-mode`} className="settings-select" value={draft[id].metric.mode}
+                aria-label={`${position} 표시할 숫자`} onChange={(event) => updateMetric(id, "mode", event.target.value)}>
+                {METRIC_MODES.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+              </select>
+              {draft[id].metric.mode !== "none" && <>
+                <label htmlFor={`card-${id}-source`}>집계 데이터베이스</label>
+                <select id={`card-${id}-source`} className="settings-select" value={draft[id].metric.source}
+                  aria-label={`${position} 집계 데이터베이스`} onChange={(event) => updateMetric(id, "source", event.target.value)}>
+                  <option value="task">기존 할일 데이터베이스</option>
+                  <option value="note">기존 노트 데이터베이스</option>
+                  <option value="custom">다른 데이터베이스 직접 지정</option>
+                </select>
+                {draft[id].metric.source === "custom" && <>
+                  <label htmlFor={`card-${id}-database`}>데이터베이스 링크 또는 ID</label>
+                  <input id={`card-${id}-database`} value={draft[id].metric.database} inputMode="url" autoCapitalize="none"
+                    spellCheck={false} required maxLength={4096} aria-label={`${position} 데이터베이스 링크 또는 ID`}
+                    onChange={(event) => updateMetric(id, "database", event.target.value)} />
+                </>}
+                {["date_today", "unchecked", "checked", "equals"].includes(draft[id].metric.mode) && <>
+                  <label htmlFor={`card-${id}-property`}>
+                    {draft[id].metric.mode === "date_today" ? "날짜 속성 이름" : draft[id].metric.mode === "equals" ? "선택·상태 속성 이름" : "완료 체크박스 속성 이름"}
+                  </label>
+                  <input id={`card-${id}-property`} value={draft[id].metric.property} required maxLength={100}
+                    aria-label={`${position} 속성 이름`} onChange={(event) => updateMetric(id, "property", event.target.value)} />
+                </>}
+                {draft[id].metric.mode === "equals" && <>
+                  <label htmlFor={`card-${id}-value`}>집계할 선택·상태 값</label>
+                  <input id={`card-${id}-value`} value={draft[id].metric.value} required maxLength={200}
+                    aria-label={`${position} 선택·상태 값`} onChange={(event) => updateMetric(id, "value", event.target.value)} />
+                </>}
+              </>}
             </fieldset>
           ))}
         </div>

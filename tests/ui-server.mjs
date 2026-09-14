@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DATABASES } from "../shared/databases.js";
+import { CARD_IDS, normalizeMetric } from "../shared/dashboard-metrics.js";
 
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
 const counts = { task: 3, note: 2 };
@@ -22,11 +23,21 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === "/api/dashboard") {
     if (state === "offline") return json({ message: "UI fixture failure" }, 503);
-    return json({ date: "2026-09-15", timeZone: "Asia/Seoul",
-      task: { count: counts.task, error: null, url: DATABASES.task.url },
-      note: { count: state === "partial" ? null : counts.note,
-        error: state === "partial" ? "Notion 연결 권한을 확인해주세요." : null, url: DATABASES.note.url }
-    });
+    const metrics = JSON.parse(url.searchParams.get("cards") || "{}");
+    const cards = Object.fromEntries(CARD_IDS.map((id) => {
+      const card = { count: null, error: null, url: DATABASES[id]?.url || "" };
+      try {
+        const metric = normalizeMetric(metrics[id], id);
+        if (metric.mode !== "none") {
+          if (state === "partial" && metric.source === "note") throw new Error("Notion 연결 권한을 확인해주세요.");
+          card.count = metric.mode === "created_today" ? counts[metric.source] || 1 :
+            metric.mode === "all" ? metric.source === "note" ? 12 : 20 :
+            metric.mode === "unchecked" ? 7 : metric.mode === "checked" ? 13 : 4;
+        }
+      } catch (error) { card.error = error.message; }
+      return [id, card];
+    }));
+    return json({ date: "2026-09-15", timeZone: "Asia/Seoul", ...cards });
   }
   if (url.pathname === "/api/database-options") {
     const note = url.searchParams.get("mode") === "note";

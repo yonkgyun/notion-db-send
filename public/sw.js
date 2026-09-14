@@ -1,4 +1,4 @@
-const CACHE_NAME = "quick-notion-pwa-v7";
+const CACHE_NAME = "quick-notion-pwa-v8";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/memo-icon-192.png", "/memo-icon-512.png"];
 
 self.addEventListener("install", (event) => {
