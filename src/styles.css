@@ -17,6 +17,8 @@
   --button-disabled: rgba(255, 255, 255, 0.68);
   --danger: #c2410c;
   --success: #2563eb;
+  --selected: #2563eb;
+  --selected-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
   --shadow: 0 16px 42px rgba(21, 21, 31, 0.07);
   --field-gap: 11px;
 }
@@ -55,6 +57,7 @@ input {
 
 .quick-panel {
   width: min(100%, 520px);
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -78,7 +81,73 @@ h1 {
 .memo-form {
   display: grid;
   gap: var(--field-gap);
+  margin-top: auto;
+  padding-top: 8px;
 }
+
+.dashboard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.dashboard-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dashboard-refresh {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.dashboard-refresh:disabled { opacity: 0.5; cursor: wait; }
+.dashboard-refresh:hover:not(:disabled) { background: var(--panel); color: var(--text); }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 108px;
+  gap: 10px;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.dashboard-task { --card-accent: #2563eb; }
+.dashboard-note { --card-accent: #16794b; }
+.dashboard-card-top { display: flex; justify-content: space-between; color: var(--card-accent); }
+.dashboard-label { font-size: 13px; font-weight: 650; line-height: 1.3; }
+.dashboard-value { display: flex; align-items: baseline; gap: 4px; min-height: 29px; }
+.dashboard-value strong { font-size: 24px; font-weight: 780; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.dashboard-value > span { color: var(--muted); font-size: 12px; }
+.dashboard-value .dashboard-status { line-height: 29px; }
+.dashboard-pending { align-items: center; justify-content: center; background: transparent; border-style: dashed; color: var(--muted); font-size: 13px; }
+.dashboard-error { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--danger); overflow-wrap: anywhere; }
+.dashboard-card[href]:hover { border-color: var(--card-accent); }
+.dashboard-card[href]:focus-visible,
+.dashboard-refresh:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
 
 .mode-tabs {
   display: grid;
@@ -102,9 +171,9 @@ h1 {
 }
 
 .mode-tabs button.active {
-  background: #2563eb;
+  background: var(--selected);
   color: #ffffff;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+  box-shadow: var(--selected-shadow);
 }
 
 .mode-tabs button:disabled {
@@ -255,22 +324,22 @@ textarea {
 }
 
 .title-textarea {
-  height: 68px;
-  min-height: 68px;
-  max-height: 68px;
+  height: 72px;
+  min-height: 72px;
+  max-height: 72px;
   overflow-y: auto;
 }
 
 .memo-textarea {
-  height: 68px;
-  min-height: 68px;
-  max-height: 68px;
+  height: 72px;
+  min-height: 72px;
+  max-height: 72px;
   overflow-y: auto;
 }
 
 .body-textarea {
-  height: 68px;
-  min-height: 68px;
+  height: 72px;
+  min-height: 72px;
   max-height: none;
   overflow-y: hidden;
 }
@@ -284,13 +353,13 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #16794b;
+  background: var(--selected);
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 740;
+  font-size: 14px;
+  font-weight: 780;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 12px 28px rgba(22, 121, 75, 0.22);
+  box-shadow: var(--selected-shadow);
   touch-action: manipulation;
 }
 
@@ -299,9 +368,15 @@ textarea {
 }
 
 .save-button:disabled {
-  background: rgba(22, 121, 75, 0.22);
+  background: color-mix(in srgb, var(--selected) 30%, transparent);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.save-button:focus-visible,
+.mode-tabs button:focus-visible {
+  outline: 2px solid var(--selected);
+  outline-offset: 3px;
 }
 
 textarea::placeholder {
@@ -432,6 +507,7 @@ textarea:disabled {
     --button: #f2f1ed;
     --button-disabled: rgba(242, 241, 237, 0.26);
     --shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+    --selected: #3b82f6;
   }
 
   body {
@@ -443,10 +519,8 @@ textarea:disabled {
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 
-  .mode-tabs button.active {
-    background: #3b82f6;
-    color: #ffffff;
-  }
+  .dashboard-task { --card-accent: #7faaff; }
+  .dashboard-note { --card-accent: #65ce9c; }
 }
 
 @media (min-width: 680px) {
@@ -460,17 +534,17 @@ textarea:disabled {
   }
 
   .title-textarea {
-    height: 68px;
-    min-height: 68px;
+    height: 72px;
+    min-height: 72px;
   }
 
   .memo-textarea {
-    height: 68px;
-    min-height: 68px;
+    height: 72px;
+    min-height: 72px;
   }
 
   .body-textarea {
-    height: 68px;
-    min-height: 68px;
+    height: 72px;
+    min-height: 72px;
   }
 }

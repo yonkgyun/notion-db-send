@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ImagePlus, Send, X } from "lucide-react";
+import Dashboard from "./Dashboard.jsx";
 import "./styles.css";
 
 const TEXT = {
@@ -13,7 +14,7 @@ const TEXT = {
   typeLoading: "\uC720\uD615 \uBD88\uB7EC\uC624\uB294 \uC911",
   typeNoOptions: "\uC720\uD615 \uC635\uC158 \uC5C6\uC74C",
   dateLabel: "\uB0A0\uC9DC",
-  dateEmpty: "\uB0A0\uC9DC\uB97C \uC120\uD0DD\uD558\uC138\uC694",
+  dateEmpty: "\uB0A0\uC9DC\uC120\uD0DD",
   titleLabel: "\uC81C\uBAA9",
   titlePlaceholder: "\uB0B4\uC6A9\uC744 \uC785\uB825\uD558\uC138\uC694",
   memoLabel: "\uBA54\uBAA8",
@@ -62,6 +63,7 @@ function App() {
   const [isLoadingTypes, setIsLoadingTypes] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const [dashboardRevision, setDashboardRevision] = useState(0);
   const textareaRef = useRef(null);
   const bodyTextareaRef = useRef(null);
   const photoInputRef = useRef(null);
@@ -79,8 +81,15 @@ function App() {
     setType("");
     setTypePropertyName(mode === "note" ? "\uBD84\uB958" : "\uC720\uD615");
     loadTypeOptions(mode);
-    requestAnimationFrame(() => textareaRef.current?.focus());
   }, [mode]);
+
+  useLayoutEffect(() => {
+    const textarea = bodyTextareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [bodyContent, mode]);
 
   async function loadTypeOptions(nextMode = mode) {
     setIsLoadingTypes(true);
@@ -178,10 +187,7 @@ function App() {
   }
 
   function handleBodyChange(event) {
-    const textarea = event.target;
-    setBodyContent(textarea.value);
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    setBodyContent(event.target.value);
   }
 
   async function handleSubmit(event) {
@@ -224,6 +230,7 @@ function App() {
       setBodyContent("");
       setImages([]);
       setEntryDate("");
+      setDashboardRevision((value) => value + 1);
       showToast(TEXT.saved, "success");
       requestAnimationFrame(() => {
         if (bodyTextareaRef.current) {
@@ -245,6 +252,8 @@ function App() {
         <header className="app-header">
           <h1>{TEXT.title}</h1>
         </header>
+
+        <Dashboard revision={dashboardRevision} />
 
         <form id="memo-form" className="memo-form" onSubmit={handleSubmit}>
           <input
