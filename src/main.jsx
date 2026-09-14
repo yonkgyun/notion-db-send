@@ -85,10 +85,22 @@ function App() {
 
   useLayoutEffect(() => {
     const textarea = bodyTextareaRef.current;
-    if (textarea) {
+    if (!textarea) return;
+    function resize() {
       textarea.style.height = "auto";
       textarea.style.height = `${textarea.scrollHeight}px`;
+      textarea.parentElement.style.height = `${textarea.getBoundingClientRect().height}px`;
     }
+    resize();
+    let width = textarea.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (width !== textarea.clientWidth) {
+        width = textarea.clientWidth;
+        resize();
+      }
+    });
+    observer.observe(textarea.parentElement);
+    return () => observer.disconnect();
   }, [bodyContent, mode]);
 
   async function loadTypeOptions(nextMode = mode) {
@@ -292,7 +304,7 @@ function App() {
           <div className={`field-row ${mode === "note" ? "note-field-row" : "task-field-row"}`}>
             <label className="form-field type-field">
               <span>{mode === "note" ? TEXT.noteType : TEXT.type}</span>
-              <select
+              <span className="input-shell select-shell"><select
                 className={!type ? "is-placeholder" : ""}
                 value={type}
                 onChange={(event) => setType(event.target.value)}
@@ -306,7 +318,7 @@ function App() {
                     {option}
                   </option>
                 ))}
-              </select>
+              </select></span>
             </label>
 
             {mode === "task" && <label className="form-field date-field">
@@ -353,7 +365,7 @@ function App() {
 
           <label className="form-field">
             <span>{TEXT.titleLabel}</span>
-            <textarea
+            <span className="input-shell"><textarea
               className="title-textarea"
               ref={textareaRef}
               value={content}
@@ -362,12 +374,12 @@ function App() {
               aria-label={TEXT.titleLabel}
               rows={4}
               disabled={isSaving}
-            />
+            /></span>
           </label>
 
           <label className="form-field">
             <span>{TEXT.memoLabel}</span>
-            <textarea
+            <span className="input-shell"><textarea
               className="memo-textarea"
               value={memo}
               onChange={(event) => setMemo(event.target.value)}
@@ -375,12 +387,12 @@ function App() {
               aria-label={TEXT.memoLabel}
               rows={4}
               disabled={isSaving}
-            />
+            /></span>
           </label>
 
           {mode === "task" && <label className="form-field">
             <span>{TEXT.bodyLabel}</span>
-            <textarea
+            <span className="input-shell body-shell"><textarea
               className="body-textarea"
               ref={bodyTextareaRef}
               value={bodyContent}
@@ -389,7 +401,7 @@ function App() {
               aria-label={TEXT.bodyLabel}
               rows={2}
               disabled={isSaving}
-            />
+            /></span>
           </label>}
 
           <button className="save-button" type="submit" disabled={isSaving || !content.trim()}>
